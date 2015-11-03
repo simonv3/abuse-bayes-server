@@ -1,10 +1,15 @@
 {
   "description": "Server for Abuse Bayes",
   "title": "Abuse Bayes Server",
-  "devDependencies": {},
+  "repository": "https://github.com/simonv3/abuse-bayes-server",
+  "license": "MIT",
   "dependencies": {
     "body-parser": "^1.14.1",
     "classifier": "^0.1.0",
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "express-handlebars": "^2.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.8.1"
   }
 }
