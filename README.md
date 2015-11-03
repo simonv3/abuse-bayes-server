@@ -9,7 +9,7 @@ It needs [redis](http://redis.io/) and [node](nodejs.org) to run.
 To get started, clone the source:
 
 ```
-git clone git@github.com:simonv3/abuse-bayes-server
+git clone git@github.com:simonv3/abuse-bayes-server.git
 ```
 
 Move to the newly created directory:
