@@ -4,13 +4,15 @@ var exphbs  = require('express-handlebars');
 var classifier = require('classifier');
 var bodyParser = require('body-parser');
 
+console.log(process.env);
+
 var bayes = new classifier.Bayesian({
   backend: {
     type: 'Redis',
     options: {
-      hostname: 'localhost',
-      port: 6379,
-      name: 'abuseornot'
+      hostname: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+      name: process.env.REDIS_NAME || 'abuseornot'
     }
   }
 });
