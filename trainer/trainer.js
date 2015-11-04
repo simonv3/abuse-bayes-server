@@ -1,4 +1,5 @@
 var fs = require('fs');
+var https = require('https');
 var LineByLineReader = require('line-by-line');
 var classifier = require('classifier');
 
@@ -6,9 +7,9 @@ var bayes = new classifier.Bayesian({
   backend: {
     type: 'Redis',
     options: {
-      hostname: 'localhost', // default
-      port: 6379,            // default
-      name: 'abuseornot'      // namespace for persisting
+      hostname: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+      name: process.env.REDIS_NAME || 'abuseornot'
     }
   }
 });
@@ -20,27 +21,50 @@ if (process.argv.length < 4) {
 
 var filesEnded = 0;
 
-var abuseFile = process.argv[2];
-var normalFile = process.argv[3];
+var download = function(url, dest, cb) {
+  var file = fs.createWriteStream(dest);
+  var request = https.get(url, function(response) {
 
-var normalLR = new LineByLineReader(normalFile);
-var abuseLR = new LineByLineReader(abuseFile);
+    response.pipe(file);
+    file.on('finish', function() {
+      file.close(cb);
+    });
+  }).on('error', function(err) {
+    fs.unlink(dest);
+    if (cb) cb(err.message);
+  });
+};
 
-abuseLR.on('line', function(line) {
-  bayes.train(line, 'abuse');
-});
+var downloadFiles = function(url1, dest1, url2, dest2, cb) {
+  download(url1, dest1, download(url2, dest2, cb));
+};
 
-normalLR.on('line', function(line) {
-  bayes.train(line, "normal");
-});
+var abuseUrl = process.argv[2];
+var normalUrl = process.argv[3];
 
-abuseLR.on('end', function() {
-  fileEndIncrement();
-});
+var abuseDest = 'abuse_downloaded.txt';
+var normalDest = 'normal_downloaded.txt';
 
-normalLR.on('end', function() {
-  fileEndIncrement();
-});
+var rest = function() {
+  var normalLR = new LineByLineReader(abuseDest);
+  var abuseLR = new LineByLineReader(normalDest);
+
+  abuseLR.on('line', function(line) {
+    bayes.train(line, 'abuse');
+  });
+
+  normalLR.on('line', function(line) {
+    bayes.train(line, "normal");
+  });
+
+  abuseLR.on('end', function() {
+    fileEndIncrement();
+  });
+
+  normalLR.on('end', function() {
+    fileEndIncrement();
+  });
+};
 
 var fileEndIncrement = function() {
   filesEnded ++;
@@ -53,4 +77,4 @@ var thingsAreDone = function() {
   console.log('Trained!');
 };
 
-
+downloadFiles(abuseUrl, abuseDest, normalUrl, normalDest, rest);
