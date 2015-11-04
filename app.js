@@ -4,8 +4,6 @@ var exphbs  = require('express-handlebars');
 var classifier = require('classifier');
 var bodyParser = require('body-parser');
 
-console.log(process.env);
-
 var bayes = new classifier.Bayesian({
   backend: {
     type: 'Redis',

@@ -1,0 +1,4 @@
+.env
+trainer/abuse.txt
+trainer/normal.txt
+dump.rdb
