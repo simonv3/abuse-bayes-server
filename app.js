@@ -4,16 +4,7 @@ var exphbs  = require('express-handlebars');
 var classifier = require('classifier');
 var bodyParser = require('body-parser');
 
-var bayes = new classifier.Bayesian({
-  backend: {
-    type: 'Redis',
-    options: {
-      hostname: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      name: process.env.REDIS_NAME || 'abuseornot'
-    }
-  }
-});
+var bayes = require('./lib/bayes.js');
 
 // Create our Express application
 var app = express();

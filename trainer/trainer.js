@@ -1,60 +1,34 @@
-var fs = require('fs');
-var https = require('https');
-var LineByLineReader = require('line-by-line');
-var classifier = require('classifier');
+var LineByLineReader = require('line-by-line'),
+    // Own lib things
+    bayes = require('../lib/bayes.js'),
+    download = require('../lib/download.js');
 
-var bayes = new classifier.Bayesian({
-  backend: {
-    type: 'Redis',
-    options: {
-      hostname: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      name: process.env.REDIS_NAME || 'abuseornot'
-    }
-  }
-});
+var argv = require('minimist')(process.argv.slice(2));
 
-if (process.argv.length < 4) {
-  console.log('Usage: node ' + process.argv[1] + ' ABUSE_FILE NORMAL_FILE');
-  process.exit(1);
-}
+var abuseUrl = argv.a;
+var normalUrl = argv.n;
 
 var filesEnded = 0;
-
-var download = function(url, dest, cb) {
-  var file = fs.createWriteStream(dest);
-  var request = https.get(url, function(response) {
-
-    response.pipe(file);
-    file.on('finish', function() {
-      file.close(cb);
-    });
-  }).on('error', function(err) {
-    fs.unlink(dest);
-    if (cb) cb(err.message);
-  });
-};
 
 var downloadFiles = function(url1, dest1, url2, dest2, cb) {
   download(url1, dest1, download(url2, dest2, cb));
 };
 
-var abuseUrl = process.argv[2];
-var normalUrl = process.argv[3];
-
 var abuseDest = 'abuse_downloaded.txt';
 var normalDest = 'normal_downloaded.txt';
 
 var rest = function() {
-  var normalLR = new LineByLineReader(abuseDest);
-  var abuseLR = new LineByLineReader(normalDest);
+  var abuseLR = new LineByLineReader(abuseDest);
+  var normalLR = new LineByLineReader(normalDest);
+
 
   abuseLR.on('line', function(line) {
+    console.log('new abuse line', line);
     bayes.train(line, 'abuse');
   });
 
   normalLR.on('line', function(line) {
-    bayes.train(line, "normal");
+    bayes.train(line, 'normal');
   });
 
   abuseLR.on('end', function() {
@@ -77,4 +51,19 @@ var thingsAreDone = function() {
   console.log('Trained!');
 };
 
-downloadFiles(abuseUrl, abuseDest, normalUrl, normalDest, rest);
+if (argv.h) {
+  console.log('-h     Brings up help (this list).');
+  console.log('-r     Indicate that the files are remote and should be downloaded.');
+  console.log('-a     The abuse training file.');
+  console.log('-n     The normal training file.');
+  console.log('-c     Get a dump of the classifier data.');
+}
+
+if (argv.c) {
+  bayes.toJSON(function(obj) { console.log(obj) });
+} else if (argv.r) {
+  downloadFiles(abuseUrl, abuseDest, normalUrl, normalDest, rest);
+} else {
+  rest();
+}
+
