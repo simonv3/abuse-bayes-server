@@ -4,12 +4,27 @@
     <meta charset="utf-8">
     <title>Abuse Bayes</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans%3A300italic%2C400italic%2C600italic%2C700italic%2C800italic%2C400%2C300%2C600%2C700%2C800&amp;subset=latin%2Clatin-ext" type="text/css" media="all">
-    <link rel="stylesheet" href="static/styles.css" />
+    <link rel="stylesheet" href="/styles/styles.css" />
 
 </head>
 <body>
 
-    {{{body}}}
+<h1>Abuse Bayes</h1>
 
+<div class="content">
+  {{{body}}}
+</div>
+<p>
+  Get the code on <a href="https://github.com/simonv3/abuse-bayes-server" title="Abuse Bayes Server">GitHub</a>.
+  {{#if user}}
+    <a href="/logout">log out {{user.username}}</a>
+  {{else}}
+    <a href="/login">log in</a>
+  {{/if}}
+</p>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="/scripts/script.js"></script>
 </body>
 </html>

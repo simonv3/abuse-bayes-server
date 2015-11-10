@@ -1,0 +1,18 @@
+<div class="sorting">
+<h2>The Sorting Hat</h2>
+
+<ul class="sorting-queue">
+{{#each queue}}
+  <li data-tweet-id="{{tweetId}}" data-tweet-index="{{@index}}">
+  <p>{{text}}</p>
+  <a href="https://twitter.com/{{userId}}/status/{{tweetId}}/">original text</a>
+  <div class="actions">
+    mark as:
+    <a data-action="abuse" class="mark">abuse</a>
+    <a data-action="normal" class="mark">normal</a>
+    <a data-action="delete" class="mark">delete</a>
+  </div>
+  </li>
+{{/each}}
+</ul>
+</div>

@@ -1,0 +1,19 @@
+<div class="login">
+  <script src="https://cdn.auth0.com/js/lock-7.9.min.js"></script>
+  <script type="text/javascript">
+
+    var lock = new Auth0Lock('6cpnPwCwIDaKBWSzyY42zq13msdP7FTX', 'simonv3.auth0.com');
+
+
+    function signin() {
+      lock.show({
+          callbackURL: 'http://localhost:3000/callback'
+        , responseType: 'code'
+        , authParams: {
+          scope: 'openid profile'
+        }
+      });
+    }
+  </script>
+  <button onclick="window.signin();">Login</button>
+</div>
